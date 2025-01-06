@@ -38,7 +38,7 @@ class Engine:
 
     def _construct_ticker(self, ticker_dict, exch_code):
         new_ticker_dict = {
-            "ext2_ticker": f"{ticker_dict["Code"]}.{exch_code}",
+            "eodhd_ticker": f"{ticker_dict["Code"]}.{exch_code}",
             "CodeExchange": exch_code,
             **ticker_dict,
         }
