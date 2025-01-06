@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pandas as pd
 
-from config import logger, settings
+from config import settings
 
 
 class Agent:
@@ -29,8 +29,8 @@ class Agent:
     def _transform_tickers(self):
         self.tables[settings.TICKERS_OUTPUT_TABLE] = []
         for ticker in self.tickers:
-            if ".FOREX" in ticker["ext2_ticker"]:
-                pair = ticker["ext2_ticker"]
+            if ".FOREX" in ticker["eodhd_ticker"]:
+                pair = ticker["eodhd_ticker"]
                 if len(pair) == 6:
                     ticker["Currency"] = pair[3:]
                 else:
