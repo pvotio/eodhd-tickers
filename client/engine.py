@@ -15,8 +15,11 @@ class Engine:
         logger.info(f"Fetching exchanges list")
         self.exchanges = self.eodhd.get_exchanges()
         logger.info(f"Fetched {len(self.exchanges)} exchanges")
-        logger.info(f"Fetching tickers list")
+        logger.info("Fetching tickers for each exchange...")
         self._fetch_tickers()
+        logger.info(
+            f"Completed fetching tickers. Total tickers accumulated: {len(self.tickers)}"
+        )
 
     def _fetch_tickers(self):
         for exch in self.exchanges:
@@ -26,6 +29,7 @@ class Engine:
 
     def _fetch_exchange_tickers(self, exch_code):
         exch_tickers = self.eodhd.get_tickers(exch_code)
+        logger.debug(f"Fetched {len(exch_tickers)} tickers for exchange: {exch_code}")
         for ticker_dict in exch_tickers:
             if not "Code" in ticker_dict:
                 continue

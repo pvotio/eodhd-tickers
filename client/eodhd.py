@@ -26,6 +26,9 @@ class EODHD:
             kwargs["params"] = {}
 
         kwargs["params"].update(self.params)
+        logger.debug(f"Request headers: {headers}")
+        logger.debug(f"Request parameters: {kwargs["params"]}")
+
         try:
             response = self.session.request(method, *args, **kwargs)
             response.raise_for_status()
@@ -46,4 +49,5 @@ class EODHD:
 
     @property
     def params(self):
+        logger.debug("Generating request parameters with API token.")
         return {"api_token": self.token, "fmt": "json"}
