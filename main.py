@@ -1,7 +1,7 @@
 from client.engine import Engine
-from transformer import Agent
 from config import logger
 from database.helper import init_db_instance
+from transformer import Agent
 
 
 def main():
@@ -17,7 +17,6 @@ def main():
     transformer = Agent(engine.exchanges, engine.tickers)
     tables = transformer.transform()
 
-        
     logger.info("Saving data to database...")
     conn = init_db_instance()
     for t, dataframe in tables.items():
