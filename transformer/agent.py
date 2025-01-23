@@ -14,17 +14,17 @@ class Agent:
         self.dataframes = {}
 
     def transform(self):
-        self._transform_exchanges()
+        # self._transform_exchanges()
         self._transform_tickers()
         self._init_dataframes()
         return self.dataframes
 
-    def _transform_exchanges(self):
-        self.tables[settings.EXCHANGES_OUTPUT_TABLE] = []
-        for exchange in self.exchanges:
-            self.tables[settings.EXCHANGES_OUTPUT_TABLE].append(
-                {**exchange, "timestamp_created_utc": self.timenow()}
-            )
+    # def _transform_exchanges(self):
+    #     self.tables[settings.EXCHANGES_OUTPUT_TABLE] = []
+    #     for exchange in self.exchanges:
+    #         self.tables[settings.EXCHANGES_OUTPUT_TABLE].append(
+    #             {**exchange, "timestamp_created_utc": self.timenow()}
+    #         )
 
     def _transform_tickers(self):
         self.tables[settings.TICKERS_OUTPUT_TABLE] = []

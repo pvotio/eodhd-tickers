@@ -1,14 +1,16 @@
 from client.engine import Engine
 from config import logger
-from database.helper import init_db_instance
+from database.helper import init_db_instance, load_exchanges
 from transformer import Agent
 
 
 def main():
+    logger.info("Loading exchanges...")
+    exchanges = load_exchanges()
+    logger.info(f"{len(exchanges)} Exchanges loaded from database.")
     logger.info("Initializing Engine...")
-    engine = Engine()
+    engine = Engine(exchanges)
     logger.info("Engine initialized successfully.")
-
     logger.info("Running Engine...")
     engine.run()
     logger.info("Engine run completed successfully.")

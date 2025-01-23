@@ -6,15 +6,12 @@ class Engine:
 
     TOKEN = settings.TOKEN
 
-    def __init__(self):
-        self.exchanges = []
+    def __init__(self, exchanges):
+        self.exchanges = exchanges
         self.tickers = []
         self.eodhd = EODHD(self.TOKEN)
 
     def run(self):
-        logger.info(f"Fetching exchanges list")
-        self.exchanges = self.eodhd.get_exchanges()
-        logger.info(f"Fetched {len(self.exchanges)} exchanges")
         logger.info("Fetching tickers for each exchange...")
         self._fetch_tickers()
         logger.info(
@@ -23,9 +20,8 @@ class Engine:
 
     def _fetch_tickers(self):
         for exch in self.exchanges:
-            exch_code = exch["Code"]
-            logger.debug(f"Fetching {exch_code} exchange tickers")
-            self._fetch_exchange_tickers(exch_code)
+            logger.debug(f"Fetching {exch} exchange tickers")
+            self._fetch_exchange_tickers(exch)
 
     def _fetch_exchange_tickers(self, exch_code):
         exch_tickers = self.eodhd.get_tickers(exch_code)
