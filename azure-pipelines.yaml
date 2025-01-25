@@ -10,17 +10,17 @@ resources:
 
 variables:
   dockerRegistryServiceConnection: 'pa-azure-container-registry' 
-  imageRepository: 'pa-etl-eodhd-static'
+  imageRepository: 'pa-etl-eodhd-tickers'
   dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
   tag: $[format('{0:yyyy}.{0:MM}{0:dd}', pipeline.startTime)]
   buildId: $(Build.BuildId)
 
 stages:
   - stage: build_deploy
-    displayName: Build & Deploy pa-etl-eodhd-static
+    displayName: Build & Deploy pa-etl-eodhd-tickers
     jobs:
       - job: build_deploy
-        displayName: Build & Deploy pa-etl-eodhd-static
+        displayName: Build & Deploy pa-etl-eodhd-tickers
         pool:
           name: devops-agent-pool
           #vmImage: ubuntu-latest

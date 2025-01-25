@@ -1,1 +1,1 @@
-# EODHD: Static
+# EODHD: Tickers
