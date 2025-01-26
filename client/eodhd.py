@@ -31,6 +31,9 @@ class EODHD:
 
         try:
             response = self.session.request(method, *args, **kwargs)
+            if response.status_code == 404:
+                raise ValueError("Symbol not found on EODHD API")
+
             response.raise_for_status()
             return response
         except requests.exceptions.RequestException as e:

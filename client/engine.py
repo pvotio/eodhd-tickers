@@ -21,7 +21,10 @@ class Engine:
     def _fetch_tickers(self):
         for exch in self.exchanges:
             logger.debug(f"Fetching {exch} exchange tickers")
-            self._fetch_exchange_tickers(exch)
+            try:
+                self._fetch_exchange_tickers(exch)
+            except ValueError as e:
+                logger.error(f"Cannot fetch tickers list for {exch}: {e}")
 
     def _fetch_exchange_tickers(self, exch_code):
         exch_tickers = self.eodhd.get_tickers(exch_code)
