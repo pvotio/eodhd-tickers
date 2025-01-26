@@ -70,7 +70,7 @@ class MSSQLDatabase(object):
             self.cnx.close()
 
     def insert_table(
-        self, df, table_name, if_exists="append", delete_prev_records=True
+        self, df, table_name, if_exists="append", delete_prev_records=True, chunk_size=50000
     ):
         self.reopen_connection()
         if delete_prev_records:
@@ -88,14 +88,20 @@ class MSSQLDatabase(object):
                 custom[column] = "datetime"
 
         try:
-            fast_to_sql(
-                df=df,
-                name=table_name,
-                conn=self.cnx,
-                if_exists=if_exists,
-                custom=custom,
-            )
-            logger.info(f"Inserted {len(df)} rows into {table_name} table")
+            total_rows = len(df)
+            logger.info(f"Starting insertion of {total_rows} rows into {table_name} in chunks")
+            for start in range(0, total_rows, chunk_size):
+                end = min(start + chunk_size, total_rows)
+                chunk = df.iloc[start:end]
+                fast_to_sql(
+                    df=chunk,
+                    name=table_name,
+                    conn=self.cnx,
+                    if_exists=if_exists if start == 0 else "append",
+                    custom=custom,
+                )
+                logger.info(f"Inserted rows {start + 1} to {end} into {table_name}")
+
             self.cnx.commit()
         except Exception as e:
             logger.error(f"Error inserting into table {table_name}: {e}")
