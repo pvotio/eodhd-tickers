@@ -92,9 +92,8 @@ class MSSQLDatabase(object):
             logger.info(f"Starting insertion of {total_rows} rows into {table_name} in chunks")
             for start in range(0, total_rows, chunk_size):
                 end = min(start + chunk_size, total_rows)
-                chunk = df.iloc[start:end]
                 fast_to_sql(
-                    df=chunk,
+                    df=df.iloc[start:end],
                     name=table_name,
                     conn=self.cnx,
                     if_exists=if_exists if start == 0 else "append",
