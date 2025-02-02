@@ -22,7 +22,7 @@ class Agent:
         self.tables[settings.TICKERS_OUTPUT_TABLE] = []
         for ticker in self.tickers:
             if ".FOREX" in ticker["eodhd_ticker"]:
-                pair = ticker["eodhd_ticker"]
+                pair = ticker["eodhd_ticker"].replace('.FOREX', '')
                 if len(pair) == 6:
                     ticker["Currency"] = pair[3:]
                 else:
