@@ -1,54 +1,114 @@
-# EODHD Tickers
+# EODHD Exchange Ticker Ingestion Pipeline
+
+This project automates the retrieval and storage of ticker metadata from the **EOD Historical Data API**. It fetches all available instruments listed on each exchange, processes the data, and stores it in a SQL Server database for downstream use in analytics, financial systems, and platform onboarding.
+
 ## Overview
-EODHD Tickers is a Python-based data pipeline that retrieves exchange and ticker symbol lists using the EOD Historical Data API. The collected data is processed and stored in a Microsoft SQL Server database for financial analysis.
 
-## Features
-- Fetches a list of available exchanges and tickers from EODHD API.
-- Implements a retry mechanism for stable API communication.
-- Parses and processes financial data efficiently.
-- Stores structured data in a Microsoft SQL Server database.
-- Supports logging and configurable settings via environment variables.
-- Dockerized for easy deployment.
+### Purpose
 
-## Installation
-### Prerequisites
-- Python 3.10+
-- Microsoft SQL Server
-- Docker (optional, for containerized execution)
+This ETL pipeline is designed to:
+- Connect to the EODHD API and retrieve all symbols (tickers) listed under each supported exchange.
+- Enrich and standardize the data (e.g., generating `eodhd_ticker` codes like `AAPL.US`).
+- Insert the resulting dataset into a structured SQL Server table.
 
-### Setup
-Clone the repository:
+It enables users to maintain an up-to-date repository of global financial instruments tied to exchange listings.
 
-```bash
-git clone https://github.com/arqs-io/eodhd-tickers.git
-cd eodhd-tickers
+## Source of Data
+
+The data originates from the [EOD Historical Data API](https://eodhistoricaldata.com/) and uses the following endpoints:
+- `/exchanges-list`: Lists all supported stock exchanges.
+- `/exchange-symbol-list/{exchange}`: Lists tickers for a specific exchange.
+
+The API requires a valid token passed as a query parameter.
+
+## Application Flow
+
+Execution starts in `main.py` and proceeds through these stages:
+
+1. **Load Exchange List**:
+   - The database is queried using `EXCHANGES_DB_QUERY` to retrieve a list of exchange codes to process.
+
+2. **Initialize Engine**:
+   - A custom `Engine` handles per-exchange ticker collection.
+
+3. **Fetch Ticker Data**:
+   - Each exchange’s ticker list is requested via the API.
+   - For each symbol, metadata is recorded and a canonical `eodhd_ticker` is generated.
+
+4. **Transform & Load**:
+   - The `transformer.Agent` prepares the full dataset for loading.
+   - Tickers are inserted into the designated SQL Server table using batch insertion.
+
+## Project Structure
+
+```
+eodhd-tickers-main/
+├── client/               # EODHD API logic and ticker engine
+│   ├── engine.py         # Fetches tickers from exchanges
+│   └── eodhd.py          # API client for endpoints
+├── config/               # Environment and logging
+├── database/             # MSSQL connection and helpers
+├── transformer/          # Data transformation utilities
+├── main.py               # Pipeline entrypoint
+├── .env.sample           # Template for configuration variables
+├── Dockerfile            # Containerization support
 ```
 
-Install dependencies:
+## Environment Variables
 
-`pip install -r requirements.txt`
+You must configure a `.env` file based on `.env.sample`. Key variables include:
 
-Set up environment variables:
+| Variable | Description |
+|----------|-------------|
+| `TOKEN` | EODHD API token |
+| `EXCHANGES_DB_QUERY` | SQL query to retrieve the list of exchange codes |
+| `TICKERS_OUTPUT_TABLE` | SQL Server table to insert ticker data |
+| `MSSQL_*` | SQL Server credentials and configuration |
+| `REQUEST_MAX_RETRIES`, `REQUEST_BACKOFF_FACTOR` | Retry logic for HTTP requests |
+| `INSERTER_MAX_RETRIES` | Retry limit for database inserts |
 
-- Copy .env.sample to .env
-- Edit .env to include your database and API credentials.
+## Docker Support
 
-Run the application:
-`python main.py`
+You can run the application as a containerized job:
 
-## Docker Usage
-
-To run the application using Docker:
-
-
+### Build
 ```bash
 docker build -t eodhd-tickers .
+```
+
+### Run
+```bash
 docker run --env-file .env eodhd-tickers
 ```
 
-## Contributing
-- Fork the repository.
-- Create a feature branch: git checkout -b feature-branch
-- Commit changes: git commit -m "Add new feature"
-- Push to the branch: git push origin feature-branch
-- Open a Pull Request.
+## Requirements
+
+Install all Python dependencies with:
+
+```bash
+pip install -r requirements.txt
+```
+
+Key packages used:
+- `requests`: For API communication
+- `pandas`: For data transformation
+- `pyodbc` + `SQLAlchemy`: For SQL Server interaction
+- `fast-to-sql`: For efficient batch inserts
+- `python-decouple`: For .env config management
+
+## Running the Pipeline
+
+After preparing the `.env` file:
+
+```bash
+python main.py
+```
+
+Logs will report:
+- Number of exchanges processed
+- Ticker count fetched and inserted
+- Any API or DB issues encountered
+
+## License
+
+This project is released under the MIT License. Use of the EODHD API must comply with their terms of service and rate limitations.
